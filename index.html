@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Brick Game</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="device">
+    <div class="device-header">
+      <span class="brand">BRICK GAME</span>
+    </div>
+
+    <div class="screen-area">
+      <div class="screen-border">
+        <div class="screen">
+      <canvas id="game-canvas"></canvas>
+      <!-- Overlays for pause and game over -->
+    <div id="pause-overlay" class="overlay" style="display:none;">PAUSED</div>
+    <div id="game-over-overlay" class="overlay" style="display:none;">GAME OVER</div>
+
+
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel">
+      <div class="info-block">
+        <span class="info-label">SCORE</span>
+        <span class="info-value" id="score-display">0</span>
+      </div>
+      <div class="info-block">
+        <span class="info-label">LEVEL</span>
+        <span class="info-value" id="level-display">1</span>
+      </div>
+      <div class="info-block">
+        <span class="info-label">LINES</span>
+        <span class="info-value" id="lines-display">0</span>
+      </div>
+    </div>
+
+    <div class="controls-area">
+      <div class="controls-row controls-top">
+        <button class="ctrl-btn ctrl-rotate" id="btn-rotate" aria-label="Rotate">&#9650;</button>
+      </div>
+      <div class="controls-row controls-mid">
+        <button class="ctrl-btn ctrl-left" id="btn-left" aria-label="Move Left">&#9664;</button>
+        <button class="ctrl-btn ctrl-down" id="btn-down" aria-label="Soft Drop">&#9660;</button>
+        <button class="ctrl-btn ctrl-right" id="btn-right" aria-label="Move Right">&#9654;</button>
+      </div>
+      <div class="controls-row controls-bottom">
+        <button class="ctrl-btn ctrl-drop" id="btn-drop" aria-label="Hard Drop">DROP</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/board.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
