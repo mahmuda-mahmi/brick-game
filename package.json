@@ -1,0 +1,23 @@
+{
+  "name": "brick-game",
+  "version": "1.5.0",
+  "description": "90s Retro Brick Game - Tetris-style puzzle game",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "echo 'No build step needed - vanilla HTML/CSS/JS'"
+  },
+  "keywords": [
+    "tetris",
+    "brick-game",
+    "retro",
+    "game"
+  ],
+  "author": "Mahmuda Akter",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  }
+}

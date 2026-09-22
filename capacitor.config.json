@@ -1,0 +1,8 @@
+{
+  "appId": "com.brickgame.app",
+  "appName": "Brick Game",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

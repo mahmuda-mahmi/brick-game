@@ -185,3 +185,72 @@ All code, UI, and repository updates are now saved. You can clone the repository
 - Single requestAnimationFrame loop preserved
 - No duplicate event listeners after restart
 - No git commit made (per user instruction)
+
+---
+
+### 2024‑09‑22 – Android/Capacitor Setup (v1.5.0)
+
+**User:** *Package v1.5.0 as an Android app using Capacitor*
+
+**Assistant:** Implemented Android/Capacitor setup:
+
+#### Setup Steps
+
+1. Initialized npm project (`package.json`) with Capacitor 7 dependencies
+2. Created `capacitor.config.json` with:
+   - `appId`: `com.brickgame.app`
+   - `appName`: `Brick Game`
+   - `webDir`: `www`
+3. Created `www/` directory containing copies of `index.html`, `css/`, `js/`
+4. Added Android platform via `npx cap add android`
+5. Updated `android/app/build.gradle` versionName to `1.5.0`
+6. Created `.gitignore` to exclude `node_modules/`, build artifacts
+
+#### Configuration
+
+- **Capacitor version:** 7.x (latest stable)
+- **Android minSdkVersion:** 23 (Android 6.0)
+- **Android compileSdkVersion:** 35
+- **Android targetSdkVersion:** 35
+- **Application ID:** `com.brickgame.app`
+- **Application Name:** `Brick Game`
+- **Version:** 1.5.0
+
+#### Files Added
+
+- `package.json` — npm configuration with Capacitor dependencies
+- `capacitor.config.json` — Capacitor configuration
+- `www/` — Web assets directory (copy of index.html, css/, js/)
+- `.gitignore` — Excludes node_modules, build artifacts
+- `android/` — Full Android Capacitor project
+
+#### Android Project Structure
+
+- `android/app/src/main/java/com/brickgame/app/MainActivity.java` — BridgeActivity
+- `android/app/src/main/AndroidManifest.xml` — Standard Capacitor manifest
+- `android/app/build.gradle` — Android build config (v1.5.0)
+- `android/variables.gradle` — SDK versions (min 23, compile 35, target 35)
+- `android/app/src/main/assets/public/` — Web assets (index.html, css/, js/)
+
+#### Tests Performed
+
+- JavaScript syntax check (board.js, game.js): PASS
+- www/ copy syntax check: PASS
+- Android assets syntax check: PASS
+- Capacitor config validation: PASS
+- Android project structure verification: PASS
+- All web assets present in Android assets/public/: PASS
+
+#### Not Tested / Not Built
+
+- APK has NOT been built
+- Android app has NOT been installed on any device
+- No device testing performed
+- No Gradle build attempted
+
+#### Confirmation
+
+- Browser version unchanged and functional
+- Original source files (index.html, js/, css/) not modified
+- No game mechanics altered
+- Capacitor setup only
