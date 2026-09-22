@@ -150,10 +150,10 @@ body {
 }
 
 .ctrl-btn {
-  background: #6a6a62;
+  background: #5a5a52;
   color: #2a2a22;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
@@ -161,18 +161,24 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 3px 0 #4a4a42,
+    inset 1px 1px 0 rgba(255,255,255,0.15),
+    inset -1px -1px 0 rgba(0,0,0,0.2),
+    0 3px 0 #3a3a32,
     0 4px 6px rgba(0,0,0,0.3);
   transition: transform 0.05s, box-shadow 0.05s;
   min-width: 52px;
   min-height: 42px;
   touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
 .ctrl-btn:active {
   transform: translateY(2px);
   box-shadow:
-    0 1px 0 #4a4a42,
+    inset 1px 1px 0 rgba(255,255,255,0.15),
+    inset -1px -1px 0 rgba(0,0,0,0.2),
+    0 1px 0 #3a3a32,
     0 2px 3px rgba(0,0,0,0.3);
 }
 
@@ -221,5 +227,20 @@ body {
   }
   .ctrl-btn {
     min-height: 34px;
+  }
+}
+
+@media (max-width: 320px) {
+  .ctrl-btn {
+    min-width: 42px;
+    min-height: 36px;
+    font-size: 13px;
+  }
+  .ctrl-rotate {
+    min-width: 50px;
+  }
+  .ctrl-drop {
+    min-width: 80px;
+    font-size: 12px;
   }
 }

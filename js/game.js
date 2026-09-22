@@ -25,6 +25,7 @@ var BrickGame = window.BrickGame || {};
     var isPaused = false;
     var isGameOver = false;
     var cellSize = 0;
+    var pointerState = {};
     updateHUD();
    // Tetromino definitions
    var TETROMINOES = [
@@ -159,10 +160,11 @@ var BrickGame = window.BrickGame || {};
          col: col,
          rotation: 0
        };
-       // If the piece collides immediately, the game is over
-       if (!canMove(piece,0,0)) {
-         isGameOver = true;
-         var overlay = document.getElementById('game-over-overlay');
+        // If the piece collides immediately, the game is over
+        if (!canMove(piece,0,0)) {
+          isGameOver = true;
+          pointerState = {};
+          var overlay = document.getElementById('game-over-overlay');
          if (overlay) overlay.style.display = 'flex';
          BrickGame.activePiece = null;
          return;
@@ -297,6 +299,42 @@ var BrickGame = window.BrickGame || {};
       spawnPiece();
     }
 
+    function moveLeft() {
+      if (isPaused || isGameOver) return;
+      var piece = BrickGame.activePiece;
+      if (piece && canMove(piece, 0, -1)) {
+        piece.col--;
+      }
+    }
+
+    function moveDown() {
+      if (isPaused || isGameOver) return;
+      var piece = BrickGame.activePiece;
+      if (piece && canMove(piece, 1, 0)) {
+        piece.row++;
+      } else {
+        lockPiece();
+      }
+    }
+
+    function moveRight() {
+      if (isPaused || isGameOver) return;
+      var piece = BrickGame.activePiece;
+      if (piece && canMove(piece, 0, 1)) {
+        piece.col++;
+      }
+    }
+
+    function rotatePiece() {
+      if (isPaused || isGameOver) return;
+      rotateActivePiece();
+    }
+
+    function doHardDrop() {
+      if (isPaused || isGameOver) return;
+      hardDrop();
+    }
+
    function gameTick() {
      var piece = BrickGame.activePiece;
      if (piece) {
@@ -306,10 +344,22 @@ var BrickGame = window.BrickGame || {};
          lockPiece();
        }
      }
-     BrickGame.draw();
-   }
+      BrickGame.draw();
+    }
 
-   // Input handling
+    function processInputRepeat(state, timestamp) {
+      for (var k in state) {
+        if (['ArrowLeft','ArrowRight','ArrowDown','left','right','down'].indexOf(k) === -1) continue;
+        if (timestamp >= state[k].next) {
+          if (k === 'ArrowLeft' || k === 'left') moveLeft();
+          else if (k === 'ArrowRight' || k === 'right') moveRight();
+          else if (k === 'ArrowDown' || k === 'down') moveDown();
+          state[k].next += 100;
+        }
+      }
+    }
+
+    // Input handling
    function handleKey(e) {
      if (!BrickGame.activePiece) return;
      var piece = BrickGame.activePiece;
@@ -364,24 +414,9 @@ var BrickGame = window.BrickGame || {};
             }
             lastFall = timestamp;
         }
-        // handle held keys (left/right/down)
-        for (var k in keyState) {
-            if (['ArrowLeft','ArrowRight','ArrowDown'].indexOf(k) === -1) continue;
-            if (timestamp >= keyState[k].next) {
-                var piece = BrickGame.activePiece;
-                if (piece) {
-                    if (k === 'ArrowLeft' && canMove(piece,0,-1)) piece.col--;
-                    else if (k === 'ArrowRight' && canMove(piece,0,1)) piece.col++;
-                    else if (k === 'ArrowDown') {
-                        if (canMove(piece,1,0)) piece.row++;
-                        else lockPiece();
-    }
-
-
-                }
-                keyState[k].next += 100; // repeat interval
-            }
-        }
+        // handle held keys and pointer buttons (left/right/down repeat)
+        processInputRepeat(keyState, timestamp);
+        processInputRepeat(pointerState, timestamp);
         BrickGame.draw();
         requestAnimationFrame(gameLoop);
     }
@@ -395,6 +430,9 @@ var BrickGame = window.BrickGame || {};
         var key = e.key;
         if (key === 'p') {
             isPaused = !isPaused;
+            if (isPaused) {
+                pointerState = {};
+            }
             var overlay = document.getElementById('pause-overlay');
             if (overlay) overlay.style.display = isPaused ? 'flex' : 'none';
             return;
@@ -441,22 +479,17 @@ var BrickGame = window.BrickGame || {};
 
         // immediate action (ignore if game over)
         if (isGameOver) {
-            // Skip processing movement/rotation/hard drop while game over
             return;
         }
         // immediate action
-        if (key === 'ArrowLeft' && BrickGame.activePiece && canMove(BrickGame.activePiece,0,-1)) {
-            BrickGame.activePiece.col--;
-        } else if (key === 'ArrowRight' && BrickGame.activePiece && canMove(BrickGame.activePiece,0,1)) {
-            BrickGame.activePiece.col++;
+        if (key === 'ArrowLeft') {
+            moveLeft();
+        } else if (key === 'ArrowRight') {
+            moveRight();
         } else if (key === 'ArrowDown') {
-            if (BrickGame.activePiece && canMove(BrickGame.activePiece,1,0)) {
-                BrickGame.activePiece.row++;
-            } else {
-                lockPiece();
-            }
+            moveDown();
         } else if (key === 'ArrowUp') {
-            rotateActivePiece();
+            rotatePiece();
         }
     });
 
@@ -466,53 +499,43 @@ var BrickGame = window.BrickGame || {};
             delete keyState[key];
         }
     });
-    // Button controls for on‑screen UI
-    var btnLeft = document.getElementById('btn-left');
-    var btnRight = document.getElementById('btn-right');
-    var btnDown = document.getElementById('btn-down');
-    if (btnLeft) {
-      btnLeft.addEventListener('click', function(e) {
+    // Button controls for on-screen UI (pointer events)
+    var pointerRepeatDelay = 200;
+    var pointerRepeatInterval = 100;
+
+    function setupPointerButton(btn, action, repeatKey) {
+      if (!btn) return;
+      btn.addEventListener('pointerdown', function(e) {
         e.preventDefault();
-        var piece = BrickGame.activePiece;
-        if (piece && canMove(piece, 0, -1)) {
-          piece.col--;
-          BrickGame.draw();
+        if (isPaused || isGameOver) return;
+        action();
+        if (repeatKey) {
+          pointerState[repeatKey] = {
+            next: performance.now() + pointerRepeatDelay,
+            pointerId: e.pointerId
+          };
         }
       });
-    }
-    if (btnRight) {
-      btnRight.addEventListener('click', function(e) {
-        e.preventDefault();
-        var piece = BrickGame.activePiece;
-        if (piece && canMove(piece, 0, 1)) {
-          piece.col++;
-          BrickGame.draw();
-        }
-      });
-    }
-    if (btnDown) {
-      btnDown.addEventListener('click', function(e) {
-        e.preventDefault();
-        var piece = BrickGame.activePiece;
-        if (piece && canMove(piece, 1, 0)) {
-          piece.row++;
-        } else {
-          lockPiece();
-        }
-        BrickGame.draw();
-      });
+      if (repeatKey) {
+        var stopRepeat = function(e) {
+          e.preventDefault();
+          if (pointerState[repeatKey] && pointerState[repeatKey].pointerId === e.pointerId) {
+            delete pointerState[repeatKey];
+          }
+        };
+        btn.addEventListener('pointerup', stopRepeat);
+        btn.addEventListener('pointerleave', stopRepeat);
+        btn.addEventListener('pointercancel', stopRepeat);
+      }
     }
 
+    setupPointerButton(document.getElementById('btn-left'), moveLeft, 'left');
+    setupPointerButton(document.getElementById('btn-right'), moveRight, 'right');
+    setupPointerButton(document.getElementById('btn-down'), moveDown, 'down');
+    setupPointerButton(document.getElementById('btn-rotate'), rotatePiece, null);
+    setupPointerButton(document.getElementById('btn-drop'), doHardDrop, null);
+
     // Spawn the initial piece and draw
-    // Rotate button (↑) control
-    var btnRotate = document.getElementById('btn-rotate');
-    if (btnRotate) {
-      btnRotate.addEventListener('click', function(e) {
-        e.preventDefault();
-        rotateActivePiece();
-        BrickGame.draw();
-      });
-    }
    spawnPiece();
    BrickGame.draw();
 

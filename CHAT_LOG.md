@@ -89,3 +89,99 @@ All changes are now on GitHub.
 ## End of Session
 
 All code, UI, and repository updates are now saved. You can clone the repository at any time to resume development, and the `CHAT_LOG.md` file provides the full conversation context.
+
+---
+
+### 2024‑09‑22 – Phase 6: Mobile / Touch Controls (v1.5.0)
+
+**User:** *Phase 6 requirements — Mobile / Touch Controls*
+
+**Assistant:** Implemented Phase 6:
+
+#### Architecture Changes (game.js)
+
+1. **Extracted shared action functions:**
+   - `moveLeft()` — checks isPaused/isGameOver, then moves piece left
+   - `moveDown()` — checks isPaused/isGameOver, then moves piece down or locks
+   - `moveRight()` — checks isPaused/isGameOver, then moves piece right
+   - `rotatePiece()` — checks isPaused/isGameOver, then rotates
+   - `doHardDrop()` — checks isPaused/isGameOver, then hard drops
+
+2. **Unified input repeat system:**
+   - Added `processInputRepeat(state, timestamp)` function
+   - Processes both `keyState` (keyboard) and `pointerState` (touch) in the same gameLoop
+   - Uses identical timing: 200ms initial delay, 100ms repeat interval
+   - Only Left/Right/Down repeat; Rotate and Hard Drop fire once per press
+
+3. **Pointer event handlers (replaced all click handlers):**
+   - Created `setupPointerButton(btn, action, repeatKey)` helper
+   - Each button uses `pointerdown` for immediate action
+   - Left/Right/Down also track in `pointerState` for repeat via `pointerup`/`pointerleave`/`pointercancel`
+   - Rotate and Hard Drop have no repeat handlers (fire once per press)
+   - All handlers call `e.preventDefault()` to prevent browser defaults
+   - All handlers check `isPaused` and `isGameOver` before acting
+
+4. **Pointer state cleanup:**
+   - `pointerState` cleared when paused (in 'p' key handler)
+   - `pointerState` cleared on game over (in `spawnPiece()`)
+   - `pointerState` declared at top of IIFE scope alongside other state variables
+
+5. **Keyboard handler updated:**
+   - Now calls shared action functions instead of inline logic
+   - Same game-action functions used by both keyboard and pointer input
+   - No duplicate logic
+
+#### CSS Changes (style.css)
+
+6. **Retro button styling:**
+   - Buttons: `#5a5a52` background with inset bevel (lighter top-left, darker bottom-right)
+   - 3D shadow effect: `0 3px 0 #3a3a32`
+   - Active/pressed state: `translateY(2px)` with reduced shadow
+   - Added `-webkit-touch-callout: none` and `user-select: none`
+   - Tighter `border-radius: 4px` for more physical-button feel
+
+7. **Responsive layout:**
+   - Added `@media (max-width: 320px)` for very small screens
+   - Reduced button sizes on tiny viewports
+   - Existing media queries for `max-width: 360px` and `max-height: 600px` preserved
+
+#### Files Changed
+
+- `js/game.js` — Action functions, pointer events, unified repeat, state cleanup
+- `css/style.css` — Retro button styling, additional responsive breakpoint
+
+#### Manual Tests Performed
+
+- JavaScript syntax check: PASS (node --check)
+- Board dimensions (20x10): PASS
+- Piece spawns correctly: PASS
+- Canvas/draw functions exist: PASS
+- All 5 buttons have pointerdown handlers: PASS
+- No click handlers on any button: PASS
+- Left/Right/Down have pointerup/pointerleave (repeat): PASS
+- Rotate/Drop have NO pointerup/pointerleave (no repeat): PASS
+- Keyboard keydown/keyup handlers attached: PASS
+- Pointer buttons call shared action functions: PASS
+- Buttons do nothing while paused: PASS
+- Buttons work after resume: PASS
+- pointerup/pointerleave stop repeat tracking: PASS
+- pointercancel stops repeat: PASS
+- pointerId mismatch ignored (no double-fire): PASS
+- Enter restart works: PASS
+- processInputRepeat handles both keyState and pointerState: PASS
+
+#### Known Limitations
+
+- Node.js test environment cannot fully simulate browser pointer events (no DOM layout testing)
+- Responsive layout and visual appearance should be verified in actual browser
+- Touch repeat behavior on actual touch devices should be verified in browser devtools device emulation
+
+#### Confirmation
+
+- v1.4.0 functionality remains intact (all game mechanics unchanged)
+- Keyboard controls still fully functional
+- No new dependencies or libraries added
+- No external build systems introduced
+- Single requestAnimationFrame loop preserved
+- No duplicate event listeners after restart
+- No git commit made (per user instruction)
